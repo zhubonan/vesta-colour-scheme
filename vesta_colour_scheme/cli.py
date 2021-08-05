@@ -4,7 +4,7 @@ Commandline interface
 import click
 import shutil
 from yaml import safe_load
-from vesta_colour_scheme.settings import DotVesta
+from vesta_colour_scheme.dotvesta import DotVesta
 
 @click.command('vesta-apply-colours')
 @click.argument('vesta', type=click.Path(exists=True))

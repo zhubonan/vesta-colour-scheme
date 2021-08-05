@@ -3,7 +3,7 @@ Read, write and manipulate VESTA save files
 """
 import re
 import shutil
-from typing import Tuple, List, Dict
+from typing import Tuple, List, Dict, Union
 from collections import OrderedDict
 from pathlib import Path
 
@@ -161,11 +161,12 @@ def hex2rgb(hex_string: str) -> Tuple[int, int, int]:
     return tuple(int(hex_string[i:i + 2], 16) for i in (0, 2, 4))
 
 
-def apply_colour_scheme(file: str, scheme: str) -> None:
+def apply_colour_scheme(file: Union[str, Path], scheme: str) -> None:
     """
     Shortcut function for applying a colour scheme
     """
 
+    file = Path(file)
     obj = DotVesta(file)
     with open(scheme) as fhandle:
         colours = safe_load(fhandle)
@@ -175,5 +176,5 @@ def apply_colour_scheme(file: str, scheme: str) -> None:
     else:
         obj.apply_colour_mapping(colours)
 
-    shutil.move(file, str(file) + '.bak')
+    shutil.move(file, file.with_suffix('.vesta.bak'))
     obj.write(file)

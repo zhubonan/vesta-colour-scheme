@@ -6,7 +6,7 @@ import shutil
 
 import pytest
 from vesta_colour_scheme.cli import main
-from vesta_colour_scheme.settings import DotVesta
+from vesta_colour_scheme.dotvesta import DotVesta
 from click.testing import CliRunner
 
 

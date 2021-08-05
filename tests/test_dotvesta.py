@@ -1,11 +1,11 @@
 """
-Test the functionality of the settings
+Test the functionality of the reading/writing .vesta files
 """
 import shutil
 import pytest
 from pathlib import Path
 
-from vesta_colour_scheme.settings import DotVesta, apply_colour_scheme, hex2rgb
+from vesta_colour_scheme.dotvesta import DotVesta, apply_colour_scheme, hex2rgb
 
 @pytest.fixture
 def datafolder():
