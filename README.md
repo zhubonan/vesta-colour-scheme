@@ -29,10 +29,11 @@ Commandline interface:
 ```
 Usage: vesta-colour-scheme [OPTIONS] VESTA SCHEME
 
-  A apply a predefined colours to a VESTA file
+  Apply a predefined colour scheme to a VESTA file
 
 Options:
   --help  Show this message and exit.
+(aiida-1.0-py3) 
 ```
 
 

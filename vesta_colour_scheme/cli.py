@@ -11,7 +11,7 @@ from vesta_colour_scheme.dotvesta import DotVesta
 @click.argument('scheme', type=click.File('r'))
 def main(vesta, scheme):
     """
-    A apply a predefined colours to a VESTA file
+    Apply a predefined colour scheme to a VESTA file
     """
 
     obj = DotVesta(vesta)
