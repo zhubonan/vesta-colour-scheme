@@ -1,6 +1,6 @@
 # vesta-colour-scheme
 
-Manipulating VESTA save files to apply user-defined colours.
+Manipulating [VESTA](https://jp-minerals.org/vesta/en/) save files to apply user-defined colours.
 
 This package provides an python inteface for reading/writing VESTA save files. It is very basic but serves the goal of changing colours well.
 Picking a good colour scheme can quickly become non-trivial for systems with three or more elements.
