@@ -13,6 +13,7 @@ While colours of each species can be picked manually using GUI, the process of a
 This package provides a command-line tool for applying a colour scheme, defined in a `*.yaml` file, to existing `.vesta` files.
 This allows different colour scheme can be trialed and applied to a range of `.vesta` files easily.
 
+![Example](examples/example.png)
 
 ## Installation
 
