@@ -27,13 +27,15 @@ pip install git+https://github.com/zhubonan/vesta-colour-scheme.git#egg=vesta-co
 Commandline interface:
 
 ```
-Usage: vesta-colour-scheme [OPTIONS] VESTA SCHEME
+Usage: vesta-colour-scheme [OPTIONS] [VESTA_FILE]...
 
   Apply a predefined colour scheme to a VESTA file
 
 Options:
-  --help  Show this message and exit.
-(aiida-1.0-py3) 
+  --scheme FILENAME
+  --backup / --no-backup
+  --verbose
+  --help                  Show this message and exit.
 ```
 
 
