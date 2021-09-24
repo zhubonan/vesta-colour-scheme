@@ -29,10 +29,14 @@ class DotVesta:
         self.entries = read_content(self._content[2:])
 
     def __getitem__(self, key):
-        return self.entries[key]
+        if len(self.entries) > 0:
+            raise KeyError("More than one entry is stored - opeartion is ambiguous")
+        return self.entries[0][key]
 
     def __setitem__(self, key, value):
-        self.entries[key] = value
+        if len(self.entries) > 0:
+            raise ValueError("More than one entry is stored - opeartion is ambiguous")
+        self.entries[0][key] = value
 
     def write(self, outfile: str) -> None:
         """
@@ -43,10 +47,11 @@ class DotVesta:
         """
         with open(outfile, 'w') as fhandle:
             fhandle.write('#VESTA_FORMAT_VERSION 3.5.0\n\n')
-            for name, item in self.entries.items():
-                fhandle.write(name + ' ' + item[0] + '\n')  # Write the title line
-                for line in item[1]:
-                    fhandle.write(line + '\n')
+            for entry in self.entries:
+                for name, item in entry.items():
+                    fhandle.write(name + ' ' + item[0] + '\n')  # Write the title line
+                    for line in item[1]:
+                        fhandle.write(line + '\n')
 
     def apply_colour_mapping(self, mapping: dict, tetra_mapping=None) -> None:
         """
@@ -66,15 +71,16 @@ class DotVesta:
                 if isinstance(value, str):
                     _mapping[key]['rgb'] = hex2rgb(value)
 
-        lines = self.entries['ATOMT'][1]
-        self.entries['ATOMT'][1] = update_colour_lines(lines, mapping,
-                                                       tetra_mapping)
+        lines = self.entries[-1]['ATOMT'][1]
+        self.entries[-1]['ATOMT'][1] = update_colour_lines(lines, mapping,
+                                                    tetra_mapping)
 
-        lines = self.entries['SITET'][1]
-        self.entries['SITET'][1] = update_colour_lines(lines,
-                                                       mapping,
-                                                       tetra_mapping,
-                                                       is_sitet=True)
+        for entry in self.entries:
+            lines = entry['SITET'][1]
+            entry['SITET'][1] = update_colour_lines(lines,
+                                                        mapping,
+                                                        tetra_mapping,
+                                                        is_sitet=True)
 
 
 def read_content(content: list) -> Dict[str, Tuple[str, List[str]]]:
@@ -87,15 +93,40 @@ def read_content(content: list) -> Dict[str, Tuple[str, List[str]]]:
     Returns:
         A dictionary of name of values of each field.
     """
+    all_entries = []
     current_name = None
     current_lines = []
     entries = OrderedDict()
+    icrystal = 0
     for line in content:
         if line.endswith('\n'):
             line = line[:-1]
-        if not line:
-            current_lines.append('')
+
+        # CRYSTAL marks the begin of a phase
+        if line == "CRYSTAL":
+
+            # The second entry - reset the entries
+            if icrystal != 0:
+                entries[current_name] = (tagline, current_lines)
+                current_lines = []
+                entries = OrderedDict()
+                entries["CRYSTAL"] = ["", [""]]
+            else:
+                # First encouter - keep using the initial entries
+                entries["CRYSTAL"] = ["", [""]]
+
+            # Push the entries in the list of all entries
+            all_entries.append(entries)
+            current_name = None
+            icrystal += 1
+
             continue
+
+        if not line:
+            if current_name is not None:
+                current_lines.append('')
+            continue
+
         if line[0].isupper() and line[1].isupper():
             if current_name:
                 entries[current_name] = [tagline, current_lines]
@@ -108,12 +139,13 @@ def read_content(content: list) -> Dict[str, Tuple[str, List[str]]]:
             continue
 
         current_lines.append(line)
-    # Remote the last empty line
+    
+    # remove the last empty line
     if not current_lines[-1]:
         current_lines.pop() 
     entries[current_name] = (tagline, current_lines)
 
-    return entries
+    return all_entries
 
 
 def update_colour_lines(lines, mapping, tetra_mapping=None, is_sitet=False) -> List[str]:
