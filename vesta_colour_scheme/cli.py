@@ -8,7 +8,7 @@ from vesta_colour_scheme.dotvesta import DotVesta
 
 @click.command('vesta-apply-colours')
 @click.option('--scheme', type=click.File('r'), default='colours.yaml')
-@click.option('--backup/--no-backup', default=False) 
+@click.option('--backup/--no-backup', default=True) 
 @click.option('--verbose', is_flag=True, default=False) 
 @click.argument('vesta_file', type=click.Path(exists=True), nargs=-1)
 def main(vesta_file, scheme, backup, verbose):

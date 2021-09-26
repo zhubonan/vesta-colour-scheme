@@ -6,6 +6,7 @@ import shutil
 from typing import Tuple, List, Dict, Union
 from collections import OrderedDict
 from pathlib import Path
+from collections import Counter
 
 from yaml import safe_load
 
@@ -27,16 +28,18 @@ class DotVesta:
                 '<path> should a path-like object or a file object.')
 
         self.entries = read_content(self._content[2:])
+        self.unqiue_fields, self.duplicated_fields = self._find_unique_and_duplicated_fields()
 
     def __getitem__(self, key):
-        if len(self.entries) > 0:
-            raise KeyError("More than one entry is stored - opeartion is ambiguous")
-        return self.entries[0][key]
+        if key not in self.unqiue_fields:
+            raise KeyError("More than one entry is stored and the key is not unique - the opeartion is ambiguous")
+        return self.entries[-1][key]
+
 
     def __setitem__(self, key, value):
-        if len(self.entries) > 0:
-            raise ValueError("More than one entry is stored - opeartion is ambiguous")
-        self.entries[0][key] = value
+        if key not in self.unqiue_fields:
+            raise KeyError("More than one entry is stored and the key is not unique - the opeartion is ambiguous")
+        self.entries[-1][key] = value
 
     def write(self, outfile: str) -> None:
         """
@@ -52,6 +55,22 @@ class DotVesta:
                     fhandle.write(name + ' ' + item[0] + '\n')  # Write the title line
                     for line in item[1]:
                         fhandle.write(line + '\n')
+
+    def _find_unique_and_duplicated_fields(self):
+        """Locate the fields that are 'per-phase'"""
+        fields = []
+        for entry in self.entries:
+            for key in entry.keys():
+                fields.append(key)
+        counts = Counter(fields)
+        unique = []
+        duplicated = []
+        for key in counts.keys():
+            if counts[key] == 1:
+                unique.append(key)
+            else:
+                duplicated.append(key)
+        return unique, duplicated
 
     def apply_colour_mapping(self, mapping: dict, tetra_mapping=None) -> None:
         """
@@ -103,7 +122,7 @@ def read_content(content: list) -> Dict[str, Tuple[str, List[str]]]:
             line = line[:-1]
 
         # CRYSTAL marks the begin of a phase
-        if line == "CRYSTAL":
+        if line.startswith("CRYSTAL"):
 
             # The second entry - reset the entries
             if icrystal != 0:
